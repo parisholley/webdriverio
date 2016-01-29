@@ -25,11 +25,19 @@ var _helpersFindElementStrategy = require('../helpers/findElementStrategy');
 
 var _helpersFindElementStrategy2 = _interopRequireDefault(_helpersFindElementStrategy);
 
+var _helpersHasElementResultHelper = require('../helpers/hasElementResultHelper');
+
+var _helpersHasElementResultHelper2 = _interopRequireDefault(_helpersHasElementResultHelper);
+
+var _q = require('q');
+
+var _q2 = _interopRequireDefault(_q);
+
 var element = function element(selector) {
     var requestPath = '/session/:sessionId/element';
-    var lastPromise = this.lastPromise.inspect();
+    var lastPromise = this.lastResult ? (0, _q2['default'])(this.lastResult).inspect() : this.lastPromise.inspect();
 
-    if (lastPromise.state === 'fulfilled' && lastPromise.value && lastPromise.value.value && lastPromise.value.value.ELEMENT) {
+    if (lastPromise.state === 'fulfilled' && (0, _helpersHasElementResultHelper2['default'])(lastPromise.value) === 1) {
         if (!selector) {
             return lastPromise.value;
         }

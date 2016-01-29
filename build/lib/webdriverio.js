@@ -68,6 +68,10 @@ var _helpersErrorHandler = require('./helpers/errorHandler');
 
 var _helpersErrorHandler2 = _interopRequireDefault(_helpersErrorHandler);
 
+var _helpersHasElementResultHelper = require('./helpers/hasElementResultHelper');
+
+var _helpersHasElementResultHelper2 = _interopRequireDefault(_helpersHasElementResultHelper);
+
 var INTERNAL_EVENTS = ['init', 'command', 'error', 'result', 'end'];
 var PROMISE_FUNCTIONS = ['then', 'catch', 'finally'];
 
@@ -232,7 +236,7 @@ var WebdriverIO = function WebdriverIO(args, modifier) {
      * check if the last and current promise got rejected. If so we can throw the error.
      */
     var reject = function reject(err, onRejected) {
-        if (this && this.emit) {
+        if (this && this.emit && this.depth === 0) {
             this.emit('error', err);
         }
 
@@ -345,11 +349,19 @@ var WebdriverIO = function WebdriverIO(args, modifier) {
             /**
              * use finally to propagate rejected promises up the chain
              */
-            return this.lastPromise.then(function () {
+            return this.lastPromise.then(function (val) {
                 /**
                  * store command into command list so `getHistory` can return it
                  */
                 commandList.push({ name: name, args: args });
+
+                /**
+                 * allow user to leave out selector argument if they have already queried an element before
+                 */
+                var lastResult = val || _this3.lastResult;
+                if ((0, _helpersHasElementResultHelper2['default'])(lastResult) && args.length < func.length && func.toString().indexOf('function ' + name + '(selector') === 0) {
+                    args.unshift(null);
+                }
 
                 return resolve.call(_this3, (0, _helpersSafeExecute2['default'])(func, args));
             }, function (e) {
@@ -607,6 +619,7 @@ var WebdriverIO = function WebdriverIO(args, modifier) {
              * queue command
              */
             client.name = name;
+            client.lastResult = this.lastResult;
             client.next(func, args, name);
             return client;
         };

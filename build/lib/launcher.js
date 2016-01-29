@@ -233,7 +233,7 @@ var Launcher = (function () {
                             capabilities = _step3.value;
 
                             this.schedule.push({
-                                cid: ++cid,
+                                cid: cid++,
                                 specs: this.configParser.getSpecs(capabilities.specs, capabilities.exclude),
                                 availableInstances: capabilities.maxInstances || config.maxInstancesPerCapability,
                                 runningInstances: 0
@@ -396,7 +396,7 @@ var Launcher = (function () {
                 schedulableCaps[0].runningInstances++;
             }
 
-            return this.getNumberOfRunningInstances() > 0 && this.getNumberOfSpecsLeft() === 0;
+            return this.getNumberOfRunningInstances() === 0 && this.getNumberOfSpecsLeft() === 0;
         }
 
         /**
@@ -519,6 +519,15 @@ var Launcher = (function () {
                  * finish with exit code 1
                  */
                 return this.resolve(1);
+            }
+
+            // When spawned as a subprocess,
+            // SIGINT will not be forwarded to childs.
+            // Thus for the child to exit cleanly, we must force send SIGINT
+            if (!process.stdin.isTTY) {
+                this.processes.forEach(function (p) {
+                    return p.kill('SIGINT');
+                });
             }
 
             console.log('\n\nEnd selenium sessions properly ...\n(press crtl+c again to hard kill the runner)\n');

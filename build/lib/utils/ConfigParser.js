@@ -287,12 +287,12 @@ var ConfigParser = (function () {
 
                     var filenames = _glob2['default'].sync(pattern);
 
-                    filenames = filenames.filter(function (path) {
-                        return path.slice(-3) === '.js' || path.slice(-8) === '.feature' || path.slice(-7) === '.coffee';
+                    filenames = filenames.filter(function (filename) {
+                        return filename.slice(-3) === '.js' || filename.slice(-3) === '.ts' || filename.slice(-8) === '.feature' || filename.slice(-7) === '.coffee';
                     });
 
-                    filenames = filenames.map(function (path) {
-                        return path.indexOf('/') === 0 ? path : process.cwd() + '/' + path;
+                    filenames = filenames.map(function (filename) {
+                        return _path2['default'].isAbsolute(filename) ? _path2['default'].normalize(filename) : _path2['default'].resolve(process.cwd(), filename);
                     });
 
                     if (filenames.length === 0 && !omitWarnings) {

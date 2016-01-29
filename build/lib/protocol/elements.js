@@ -19,6 +19,8 @@
 
 'use strict';
 
+var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
+
 var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
 
 Object.defineProperty(exports, '__esModule', {
@@ -29,14 +31,26 @@ var _helpersFindElementStrategy = require('../helpers/findElementStrategy');
 
 var _helpersFindElementStrategy2 = _interopRequireDefault(_helpersFindElementStrategy);
 
+var _helpersHasElementResultHelper = require('../helpers/hasElementResultHelper');
+
+var _helpersHasElementResultHelper2 = _interopRequireDefault(_helpersHasElementResultHelper);
+
+var _q = require('q');
+
+var _q2 = _interopRequireDefault(_q);
+
 var elements = function elements(selector) {
     var requestPath = '/session/:sessionId/elements';
-    var lastPromise = this.lastPromise.inspect();
+    var lastPromise = this.lastResult ? (0, _q2['default'])(this.lastResult).inspect() : this.lastPromise.inspect();
 
-    if (lastPromise.state === 'fulfilled' && lastPromise.value && lastPromise.value.value && lastPromise.value.value.ELEMENT) {
+    if (lastPromise.state === 'fulfilled' && (0, _helpersHasElementResultHelper2['default'])(lastPromise.value)) {
         if (!selector) {
-            lastPromise.value.value = [lastPromise.value.value];
-            return lastPromise.value;
+            var newSelector = _Object$assign({}, lastPromise.value);
+            /**
+             * if last result was an element result transform result into an array
+             */
+            newSelector.value = Array.isArray(newSelector.value) ? newSelector.value : [newSelector.value];
+            return newSelector;
         }
 
         /**
