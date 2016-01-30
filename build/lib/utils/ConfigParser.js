@@ -33,6 +33,7 @@ var HOOKS = ['before', 'beforeSuite', 'beforeHook', 'beforeTest', 'beforeCommand
 var DEFAULT_TIMEOUT = 10000;
 var NOOP = function NOOP() {};
 var DEFAULT_CONFIGS = {
+    sync: true,
     specs: [],
     suites: {},
     exclude: [],
